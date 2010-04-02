@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{preforker}
-  s.version = "0.0.0"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Daniel Cadenas"]
@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
      "lib/preforker/signal_processor.rb",
      "lib/preforker/util.rb",
      "lib/preforker/worker.rb",
+     "preforker.gemspec",
      "spec/integration/logging_spec.rb",
      "spec/integration/timeout_spec.rb",
      "spec/integration/worker_control_spec.rb",
