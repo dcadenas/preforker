@@ -52,6 +52,10 @@ You can send some signals to master to control the way it handles the workers li
 [QUIT] Kill workers and master in a graceful way
 [TERM, INT] Kill workers and master immediately
 
+== Installation
+
+  gem install preforker
+
 == Acknowledgments
 
 Most of the preforking operating system tricks come from Unicorn. Check out its source code for a hands on tutorial on Unix internals!
