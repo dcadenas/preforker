@@ -1,0 +1,77 @@
+= preforker
+
+A gem to easily create prefork servers.
+
+== Example
+
+Let's see an example using the Mac 'say' command.
+
+  require 'preforker'
+
+  #you can open some socket here or reserve any other resource you want to share with your workers, this is master space
+  Preforker.new(:timeout => 10) do |master|
+    #this block is only run from each worker (10 by default)
+
+    #here you should write the code that is needed to be ran each time a fork is created, initializations, etc.
+    `say hi`
+
+    #here you could IO.select a socket, run an EventMachine service (see example), or just run worker loop
+    #you need to ask master if it wants you alive periodically or else it will kill you after the timeout elapses. Respect your master!
+    while master.wants_me_alive? do
+      sleep 1
+      `say ping pong`
+    end
+
+    #here we can do whatever we want when exiting gracefully
+    `say bye`
+  end.start
+
+To kill the server just run:
+
+  kill -s QUIT `cat preforker.pid`
+
+See the examples directory and the specs for more examples.
+
+== Configuration options
+
+[:timeout] The timeout in seconds, 5 by default. If a worker takes more than this it will be killed and respawned.
+[:workers] Number of workers, 10 by default.
+[:stdout_path] Path to redirect stdout to. By default it's /dev/null
+[:stderr_path] Path to redirect stderr to. By default it's /dev/null
+[:app_name] The app name, 'preforker' by default. Used for some ps message, log messages messages and pid file name.
+[:pid_path] The path to the pid file for this server. By default it's './preforker.pid'.
+[:logger] This is Logger.new('./preforker.log') by default
+
+== Signals
+
+You can send some signals to master to control the way it handles the workers lifetime.
+
+[WINCH] Gracefully kill all workers but keep master alive
+[TTIN] Increase number of workers
+[TTOU] Decrease number of workers
+[QUIT] Kill workers and master in a graceful way
+[TERM, INT] Kill workers and master immediately
+
+== Acknowledgments
+
+Most of the preforking operating system tricks come from Unicorn. Check out its source code for a hands on tutorial on Unix internals!
+
+== To do list
+
+* More tests
+* Log rotation through the USR1 signal
+* Have something like min_spare_workers, max_workers
+
+== Note on Patches/Pull Requests
+
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== Copyright
+
+Copyright (c) 2010 Daniel Cadenas. See LICENSE for details.
