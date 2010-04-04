@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'preforker'
 
 #you can open some socket here or reserve any other resource you want to share with your workers, this is master space
