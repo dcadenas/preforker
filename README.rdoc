@@ -6,23 +6,30 @@ A gem to easily create prefork servers.
 
 Let's see an example using the Mac 'say' command.
 
+  require 'rubygems'
   require 'preforker'
 
-  #you can open some socket here or reserve any other resource you want to share with your workers, this is master space
-  Preforker.new(:timeout => 10) do |master|
-    #this block is only run from each worker (10 by default)
+  #you can open some socket here or reserve any other resource you want to share
+  #with your workers. Whatever we do before Preforker.new is ran
+  #only in the master process.
 
-    #here you should write the code that is needed to be ran each time a fork is created, initializations, etc.
+  Preforker.new(:timeout => 10) do |master|
+    #this block is only run by each worker (10 by default)
+
+    #first you should write the code that is needed to be ran
+    #once when a new fork is created, initializations, etc.
     `say hi`
 
-    #here you could IO.select a socket, run an EventMachine service (see example), or just run worker loop
-    #you need to ask master if it wants you alive periodically or else it will kill you after the timeout elapses. Respect your master!
+    #now you could IO.select a socket, run an EventMachine service (see example),
+    #or as we do here, just run a worker loop. Notice that you need to ask master 
+    #if it wants you alive periodically or else it will kill you after
+    #the timeout elapses. Respect your master!
     while master.wants_me_alive? do
       sleep 1
       `say ping pong`
     end
 
-    #here we can do whatever we want when exiting gracefully
+    #here we can do whatever we want to exit gracefully
     `say bye`
   end.start
 
@@ -36,8 +43,8 @@ See the examples directory and the specs for more examples.
 
 [:timeout] The timeout in seconds, 5 by default. If a worker takes more than this it will be killed and respawned.
 [:workers] Number of workers, 10 by default.
-[:stdout_path] Path to redirect stdout to. By default it's /dev/null
-[:stderr_path] Path to redirect stderr to. By default it's /dev/null
+[:stdout_path] Path to redirect stdout to. By default it's the log file. You may prefer to use /dev/null or /dev/stdout
+[:stderr_path] Path to redirect stderr to. By default it's the log file. You may prefer to use /dev/null or /dev/stderr
 [:app_name] The app name, 'preforker' by default. Used for some ps message, log messages messages and pid file name.
 [:pid_path] The path to the pid file for this server. By default it's './preforker.pid'.
 [:logger] This is Logger.new('./preforker.log') by default
