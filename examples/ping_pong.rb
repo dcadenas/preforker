@@ -7,7 +7,7 @@ require 'preforker'
 Preforker.new(:timeout => 10) do |master|
   #this block is only run from each worker (10 by default)
 
-  #here you should write the code that is needed to be ran each time a fork is created, initializations, etc.
+  #here you should write the code that is needed to be ran once each time a fork is created, initializations, etc.
   `say hi, I\\'m a worker`
 
   #here you could IO.select a socket, run an EventMachine service (see example), or just run worker loop
@@ -19,8 +19,9 @@ Preforker.new(:timeout => 10) do |master|
 
   #here we can do whatever we want when exiting gracefully
   `say bye`
+
+#we can use run instead of start to run the server without daemonizing
 end.start
 
-puts "This will never run"
-
-#to kill the server just do: kill -s QUIT `cat preforker.pid`
+puts "I'm the launching process that forked to create master, I did my job. Enjoy the noisy ping pong championship, bye bye!"
+puts "To kill the server just do: kill -s QUIT `cat preforker.pid`

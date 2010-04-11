@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{preforker}
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Daniel Cadenas"]
-  s.date = %q{2010-04-02}
+  s.date = %q{2010-04-11}
   s.description = %q{A gem to easily create prefork servers.}
   s.email = %q{dcadenas@gmail.com}
   s.extra_rdoc_files = [
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
      "VERSION",
      "examples/amqp.rb",
      "examples/amqp_client.rb",
+     "examples/em_echo_server.rb",
      "examples/ping_pong.rb",
      "lib/preforker.rb",
      "lib/preforker/pid_manager.rb",
@@ -52,6 +53,7 @@ Gem::Specification.new do |s|
      "spec/support/integration.rb",
      "examples/amqp.rb",
      "examples/amqp_client.rb",
+     "examples/em_echo_server.rb",
      "examples/ping_pong.rb"
   ]
 

@@ -30,27 +30,33 @@ class Preforker
     $0 = "#@app_name Master"
   end
 
-  def start
-    launch do |ready_write|
-      $stdin.reopen("/dev/null")
-      set_stdout_path(@options[:stdout_path])
-      set_stderr_path(@options[:stderr_path])
+  def run(ready_write = nil)
+    $stdin.reopen("/dev/null")
+    set_stdout_path(@options[:stdout_path])
+    set_stderr_path(@options[:stderr_path])
 
-      logger.info "Master started"
+    logger.info "Master started"
 
-      pid_path = @options[:pid_path] || "./#{@app_name.downcase}.pid"
-      @pid_manager = PidManager.new(pid_path)
-      @signal_processor = SignalProcessor.new(self)
+    pid_path = @options[:pid_path] || "./#{@app_name.downcase}.pid"
+    @pid_manager = PidManager.new(pid_path)
+    @signal_processor = SignalProcessor.new(self)
 
-      spawn_missing_workers do
-        ready_write.close
-      end
+    spawn_missing_workers do
+      ready_write.close if ready_write
+    end
 
-      #tell parent we are ready
+    #tell parent we are ready
+    if ready_write
       ready_write.syswrite($$.to_s)
       ready_write.close rescue nil
+    end
 
-      @signal_processor.start_signal_loop
+    @signal_processor.start_signal_loop
+  end
+
+  def start
+    launch do |ready_write|
+      run(ready_write)
     end
   end
 
@@ -77,7 +83,6 @@ class Preforker
        exit!(1)
      else
        puts "Server started successfuly"
-       exit(0)
      end
   end
 

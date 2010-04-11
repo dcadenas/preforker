@@ -30,9 +30,15 @@ Let's see an example using the Mac 'say' command.
 
     #here we can do whatever we want to exit gracefully
     `say bye`
+
+
+  #here we are using #start to daemonize. We could have used #run to just block and then send the INT signal with ctrl-c to stop
   end.start
 
-To kill the server just run:
+  puts "I'm the launcher that forked off master, bye bye"
+  puts "To kill the server just do: kill -s QUIT `cat preforker.pid`
+
+Remember that to kill the server you need to:
 
   kill -s QUIT `cat preforker.pid`
 
