@@ -1,6 +1,6 @@
 = preforker
 
-A gem to easily create prefork servers.
+A gem to easily create protocol agnostic prefork servers.
 
 == Example
 
@@ -9,21 +9,20 @@ Let's see an example using the Mac 'say' command.
   require 'rubygems'
   require 'preforker'
 
-  #you can open some socket here or reserve any other resource you want to share
-  #with your workers. Whatever we do before Preforker.new is ran
-  #only in the master process.
+  #At this point we can open some socket or reserve any other resource you want to share with your workers.
+  #Whatever we do before Preforker.new is ran only in the master process.
+  say `hi, I\\'m the master`
 
   Preforker.new(:timeout => 10) do |master|
     #this block is only run by each worker (10 by default)
 
     #first you should write the code that is needed to be ran
     #once when a new fork is created, initializations, etc.
-    `say hi`
+    `say hi, I\\'m a worker`
 
-    #now you could IO.select a socket, run an EventMachine service (see example),
-    #or as we do here, just run a worker loop. Notice that you need to ask master 
-    #if it wants you alive periodically or else it will kill you after
-    #the timeout elapses. Respect your master!
+    #now you could IO.select a socket, run an EventMachine service (see example), or as we do here,
+    #just run a worker loop. Notice that you need to ask master if it wants you alive periodically or
+    #else it will kill you after the timeout elapses. Respect your master!
     while master.wants_me_alive? do
       sleep 1
       `say ping pong`
@@ -38,6 +37,18 @@ To kill the server just run:
   kill -s QUIT `cat preforker.pid`
 
 See the examples directory and the specs for more examples.
+
+== Why? I can always use threads!
+
+As always, it's a matter of trade offs, so it depends on how you ponder the advantages and disadvantages of a preforking architecture for your particular case.
+Still notice that you could have a mix of threads and processes, they are independent concepts.
+
+=== Advantages
+[Reliability] You may be using a third party library or a C extension with memory leaks or segfaults that could break your entire ruby process. If you use a preforking architecture you can just kill the misbehaving process without affecting the rest of your healthy workers.
+[Simplicity] When creating servers you can reduce the amount of extra code (thread pools, triggering, callbacks, etc) needed to deal with concurrency. Still you should always be aware that your app will be concurrent and correctly deal with shared resources, locking and possible race conditions. The concurrency aspect is very decoupled from your app (although in a coarse grained way) so in some cases you can add concurrency to a legacy library without changing its code, just by adding processes.
+
+=== Disadvantages
+[Efficiency] Threads are more fine grained so you have more control over which parts of your app should be concurrent. Efficiency is also better because context switching is cheap in threaded systems. But note that AFAIK this is still not the case in Ruby, specially if not using REE, see {here}[http://timetobleed.com/ruby-hoedown-slides/].
 
 == Configuration options
 
@@ -65,13 +76,13 @@ You can send some signals to master to control the way it handles the workers li
 
 == Acknowledgments
 
-Most of the preforking operating system tricks come from Unicorn. Check out its source code for a hands on tutorial on Unix internals!
+Most of the preforking operating system tricks come from {Unicorn}[http://unicorn.bogomips.org/]. I checked out its source code and read {this}[http://tomayko.com/writings/unicorn-is-unix] great introduction by {rtomayko}[http://github.com/rtomayko].
 
 == To do list
 
 * More tests
 * Log rotation through the USR1 signal
-* Have something like min_spare_workers, max_workers
+* Have something like min_spare_workers, max_workers, max_request_per_worker
 
 == Note on Patches/Pull Requests
 

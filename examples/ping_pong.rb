@@ -2,11 +2,13 @@ require 'rubygems'
 require 'preforker'
 
 #you can open some socket here or reserve any other resource you want to share with your workers, this is master space
+`say hi, I\\'m the master`
+
 Preforker.new(:timeout => 10) do |master|
   #this block is only run from each worker (10 by default)
 
   #here you should write the code that is needed to be ran each time a fork is created, initializations, etc.
-  `say hi`
+  `say hi, I\\'m a worker`
 
   #here you could IO.select a socket, run an EventMachine service (see example), or just run worker loop
   #you need to ask master if it wants you alive periodically or else it will kill you after the timeout elapses. Respect your master!
@@ -19,4 +21,6 @@ Preforker.new(:timeout => 10) do |master|
   `say bye`
 end.start
 
-#to kill the server just run: kill -s QUIT `cat preforker.pid`
+puts "This will never run"
+
+#to kill the server just do: kill -s QUIT `cat preforker.pid`

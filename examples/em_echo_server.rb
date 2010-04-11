@@ -7,8 +7,9 @@ class EchoServer < EM::Connection
     while socket = @io.accept_nonblock
       message = socket.gets
       socket.write message
-      socket.close
+      #let's fake some more work is done
       sleep 0.3
+      socket.close
     end
   rescue Errno::EAGAIN, Errno::ECONNABORTED
   end
@@ -28,6 +29,7 @@ Preforker.new(:timeout => 5, :workers => 4, :app_name => "EM example") do |maste
     EM.add_periodic_timer(4) do
       EM.stop_event_loop unless master.wants_me_alive?
     end
+
     EM.watch(socket, EchoServer, self){ |c| c.notify_readable = true}
     puts "Listening..."
   end
@@ -49,7 +51,6 @@ EventMachine::run do
   puts "Listening..."
 end
 
-__END__
 ab -c 4 -n 100 "http://127.0.0.1:8081/"
 
 Concurrency Level:      4
