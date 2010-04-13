@@ -24,4 +24,4 @@ Preforker.new(:timeout => 10) do |master|
 end.start
 
 puts "I'm the launching process that forked to create master, I did my job. Enjoy the noisy ping pong championship, bye bye!"
-puts "To kill the server just do: kill -s QUIT `cat preforker.pid`
+puts "To kill the server just do: kill -s QUIT `cat preforker.pid`"
