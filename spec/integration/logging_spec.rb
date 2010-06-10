@@ -10,7 +10,7 @@ describe "Preforker" do
       end.start
     CODE
 
-    term_server
+    quit_server
     File.read("test.log").should == "hello\n"
   end
 
@@ -22,7 +22,7 @@ describe "Preforker" do
       end.start
     CODE
 
-    term_server
+    quit_server
     File.exists?("test.log").should == false
   end
 
@@ -34,7 +34,8 @@ describe "Preforker" do
       end.start
     CODE
 
-    term_server
+    sleep 0.3
+    quit_server
     File.read("test.log").should == "hello\n"
   end
 
@@ -45,7 +46,7 @@ describe "Preforker" do
       end.start
     CODE
 
-    term_server
+    quit_server
     File.read("preforker.log").should =~ /Logfile created on/
   end
 
@@ -58,7 +59,8 @@ describe "Preforker" do
       end.start
     CODE
 
-    term_server
+    sleep 0.3
+    quit_server
     log = File.read("test.log")
     log.should =~ /stdout string/
     log.should =~ /stderr string/

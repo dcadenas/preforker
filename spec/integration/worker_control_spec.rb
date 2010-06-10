@@ -11,6 +11,7 @@ describe "Preforker" do
       end.start
     CODE
 
+    sleep 0.3
     quit_server
     log = File.read("preforker.log")
     log.should =~ /Main loop ended. Dying/
@@ -64,8 +65,9 @@ describe "Preforker" do
       end.start
     CODE
 
+    sleep 0.2
     signal_server(:TTOU)
-    sleep 0.5
+    sleep 0.2
     log = File.read("preforker.log")
     log.scan(/Child.*Exiting/).size.should == 1
   end
@@ -77,8 +79,9 @@ describe "Preforker" do
       end.start
     CODE
 
+    sleep 0.2
     signal_server(:WINCH)
-    sleep 0.5
+    sleep 0.2
     log = File.read("preforker.log")
     log.scan(/Child.*Exiting/).size.should == 2
   end
