@@ -9,7 +9,7 @@ describe "Preforker" do
       end.start
     CODE
 
-    sleep 1
+    sleep 0.3
     term_server
     log = File.read("preforker.log")
     log.should_not =~ /ERROR.*timeout/

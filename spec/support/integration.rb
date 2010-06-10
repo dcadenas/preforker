@@ -5,6 +5,7 @@ module Integration
       f.write <<-TOP
         $LOAD_PATH.unshift('#{PREFORKER_LIB_PATH}')
         require 'preforker'
+        $stdout.reopen( '/dev/null')
       TOP
       f.write(code)
     end

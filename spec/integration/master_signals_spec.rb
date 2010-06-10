@@ -2,64 +2,7 @@ require 'spec_helper'
 
 include FileTestHelper
 describe "Preforker" do
-  sandboxed_it "should kill the master and workers after a quit signal" do
-    run_preforker <<-CODE
-      Preforker.new(:workers => 2) do |master|
-        sleep 0.1 while master.wants_me_alive?
-
-        master.logger.info("Main loop ended. Dying")
-      end.start
-    CODE
-
-    quit_server
-    `ps aux | grep Preforker | grep -v grep`.should == ""
-  end
-
-  sandboxed_it "should kill the master and workers after a term signal" do
-    run_preforker <<-CODE
-      Preforker.new(:workers => 2) do |master|
-        sleep 0.1 while master.wants_me_alive?
-
-        master.logger.info("Main loop ended. Dying")
-      end.start
-    CODE
-
-    term_server
-    `ps aux | grep Preforker | grep -v grep`.should == ""
-  end
-
-  sandboxed_it "should create a pid file" do
-    run_preforker <<-CODE
-      Preforker.new(:workers => 1) do
-      end.start
-    CODE
-
-    File.exists?("preforker.pid").should == true
-  end
-
-  sandboxed_it "should delete the pid file after a quit signal" do
-    run_preforker <<-CODE
-      Preforker.new do |master|
-        sleep 0.1 while master.wants_me_alive?
-      end.start
-    CODE
-
-    quit_server
-    File.exists?("preforker.pid").should == false
-  end
-
-  sandboxed_it "should delete the pid file after a term signal" do
-    run_preforker <<-CODE
-      Preforker.new do |master|
-        sleep 0.1 while master.wants_me_alive?
-      end.start
-    CODE
-
-    term_server
-    File.exists?("preforker.pid").should == false
-  end
-
-  sandboxed_it "should gracefully end the worker code when receiving the quit signal" do
+  sandboxed_it "should quit gracefully" do
     run_preforker <<-CODE
       Preforker.new(:workers => 1) do |master|
         sleep 0.1 while master.wants_me_alive?
@@ -74,7 +17,7 @@ describe "Preforker" do
     log.should =~ /Main loop ended. Dying/
   end
 
-  sandboxed_it "should not gracefully end the worker code when receiving the term signal" do
+  sandboxed_it "shouldn't quit gracefully on term signal" do
     run_preforker <<-CODE
       Preforker.new(:workers => 1) do |master|
         sleep 0.1 while master.wants_me_alive?
