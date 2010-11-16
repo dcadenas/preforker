@@ -4,7 +4,8 @@ require 'preforker'
 require 'spec'
 require 'spec/autorun'
 require 'rubygems'
-require 'filetesthelper'
+require 'file_test_helper'
+
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 
 include Integration
