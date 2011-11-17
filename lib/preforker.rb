@@ -16,7 +16,7 @@ class Preforker
       :timeout => 5,
       :workers => 10,
       :app_name => "Preforker",
-      :stderr_path => default_log_file,
+      :stdout_path => default_log_file,
       :stderr_path => default_log_file
     }.merge(options)
 
