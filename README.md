@@ -63,18 +63,18 @@ Still notice that you could have a mix of threads and processes, they are indepe
 
 ###Disadvantages
 * Control. Threads are more fine grained so you have more control over which parts of your app should be concurrent.
-* Efficiency. A threaded system is more efficient because context switching is cheap in threaded systems. But note that AFAIK this is still not the case in Ruby, specially if not using REE, see {here}[http://timetobleed.com/ruby-hoedown-slides/].
+* Efficiency. A threaded system is more efficient because context switching is cheap in threaded systems. But note that AFAIK this is still not the case in Ruby, specially if not using REE, see [here](http://timetobleed.com/ruby-hoedown-slides).
 
 Configuration options
 ---------------------
 
 * :timeout. The timeout in seconds, 5 by default. If a worker takes more than this it will be killed and respawned.
 * :workers. Number of workers, 10 by default.
-* :stdout_path. Path to redirect stdout to. By default it's the log file. You may prefer to use /dev/null or /dev/stdout
-* :stderr_path. Path to redirect stderr to. By default it's the log file. You may prefer to use /dev/null or /dev/stderr
+* :stdout_path. Path to redirect stdout to. By default it's the log file. You may prefer to use `/dev/null` or `/dev/stdout`
+* :stderr_path. Path to redirect stderr to. By default it's the log file. You may prefer to use `/dev/null` or `/dev/stderr`
 * :app_name. The app name, 'preforker' by default. Used for some ps message, log messages messages and pid file name.
-* :pid_path. The path to the pid file for this server. By default it's './preforker.pid'.
-* :logger. This is Logger.new('./preforker.log') by default
+* :pid_path. The path to the pid file for this server. By default it's `./preforker.pid`.
+* :logger. This is `Logger.new('./preforker.log')` by default
 
 Signals
 -------
