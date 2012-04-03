@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Preforker : A gem to easily create prefork servers." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Preforker</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/dcadenas/preforker">Fork Me on GitHub</a>
+
+          <h1 id="project_title">Preforker</h1>
+          <h2 id="project_tagline">A gem to easily create prefork servers.</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/dcadenas/preforker/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/dcadenas/preforker/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>Example</h2>
+
+<p>Let's see an example using the Mac 'say' command.</p>
+
+<div class="highlight">
+<pre>  <span class="nb">require</span> <span class="s1">'rubygems'</span>
+  <span class="nb">require</span> <span class="s1">'preforker'</span>
+
+  <span class="c1">#At this point we can open some socket or reserve any other resource you want to share with your workers.</span>
+  <span class="c1">#Whatever we do before Preforker.new is ran only in the master process.</span>
+  <span class="n">say</span> <span class="sb">`hi, I</span><span class="se">\\</span><span class="sb">'m the master`</span>
+
+  <span class="no">Preforker</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:timeout</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">master</span><span class="o">|</span>
+    <span class="c1">#this block is only run by each worker (10 by default)</span>
+
+    <span class="c1">#first you should write the code that is needed to be ran</span>
+    <span class="c1">#once when a new fork is created, initializations, etc.</span>
+    <span class="sb">`say hi, I</span><span class="se">\\</span><span class="sb">'m a worker`</span>
+
+    <span class="c1">#now you could IO.select a socket, run an EventMachine service (see example), or as we do here,</span>
+    <span class="c1">#just run a worker loop. Notice that you need to ask master if it wants you alive periodically or</span>
+    <span class="c1">#else it will kill you after the timeout elapses. Respect your master!</span>
+    <span class="k">while</span> <span class="n">master</span><span class="o">.</span><span class="n">wants_me_alive?</span> <span class="k">do</span>
+      <span class="nb">sleep</span> <span class="mi">1</span>
+      <span class="sb">`say ping pong`</span>
+    <span class="k">end</span>
+
+    <span class="c1">#here we can do whatever we want to exit gracefully</span>
+    <span class="sb">`say bye`</span>
+
+
+  <span class="c1">#here we are using #start to daemonize. We could have used #run to just block and then send the INT signal with ctrl-c to stop</span>
+  <span class="k">end</span><span class="o">.</span><span class="n">start</span>
+
+  <span class="nb">puts</span> <span class="s2">"I'm the launcher that forked off master, bye bye"</span>
+  <span class="nb">puts</span> <span class="s2">"To kill the server just do: kill -s QUIT `cat preforker.pid`"</span>
+</pre>
+</div>
+
+
+<p>Remember that to kill the server you need to:</p>
+
+<div class="highlight">
+<pre>  <span class="nb">kill</span> -s QUIT <span class="sb">`</span>cat preforker.pid<span class="sb">`</span>
+</pre>
+</div>
+
+
+<p>See the examples directory and the specs for more examples.</p>
+
+<h2>Why? I can always use threads!</h2>
+
+<p>As always, it's a matter of trade offs, so it depends on how you ponder the advantages and disadvantages of a preforking architecture for your particular case.
+Still notice that you could have a mix of threads and processes, they are independent concepts.</p>
+
+<p>###Advantages</p>
+
+<ul>
+<li>Reliability. You may be using a third party library or a C extension with memory leaks or segfaults that could break your entire ruby process. If you use a preforking architecture you can just kill the misbehaving process without affecting the rest of your healthy workers.</li>
+<li>Simplicity. When creating servers you can reduce the amount of extra code (thread pools, triggering, callbacks, etc) needed to deal with concurrency. Still you should always be aware that your app will be concurrent and correctly deal with shared resources, locking and possible race conditions. The concurrency aspect is very decoupled from your app (although in a coarse grained way) so in some cases you can add concurrency to a legacy library without changing its code, just by adding processes.</li>
+</ul><p>###Disadvantages
+* Control. Threads are more fine grained so you have more control over which parts of your app should be concurrent.
+* Efficiency. A threaded system is more efficient because context switching is cheap in threaded systems. But note that AFAIK this is still not the case in Ruby, specially if not using REE, see <a href="http://timetobleed.com/ruby-hoedown-slides">here</a>.</p>
+
+<h2>Configuration options</h2>
+
+<ul>
+<li>:timeout. The timeout in seconds, 5 by default. If a worker takes more than this it will be killed and respawned.</li>
+<li>:workers. Number of workers, 10 by default.</li>
+<li>:stdout_path. Path to redirect stdout to. By default it's the log file. You may prefer to use <code>/dev/null</code> or <code>/dev/stdout</code>
+</li>
+<li>:stderr_path. Path to redirect stderr to. By default it's the log file. You may prefer to use <code>/dev/null</code> or <code>/dev/stderr</code>
+</li>
+<li>:app_name. The app name, 'preforker' by default. Used for some ps message, log messages messages and pid file name.</li>
+<li>:pid_path. The path to the pid file for this server. By default it's <code>./preforker.pid</code>.</li>
+<li>:logger. This is <code>Logger.new('./preforker.log')</code> by default</li>
+</ul><h2>Signals</h2>
+
+<p>You can send some signals to master to control the way it handles the workers lifetime.</p>
+
+<ul>
+<li>WINCH. Gracefully kill all workers but keep master alive</li>
+<li>TTIN. Increase number of workers</li>
+<li>TTOU. Decrease number of workers</li>
+<li>QUIT. Kill workers and master in a graceful way</li>
+<li>TERM, INT. Kill workers and master immediately</li>
+</ul><h2>Installation</h2>
+
+<div class="highlight">
+<pre>  gem install preforker
+</pre>
+</div>
+
+
+<h2>Acknowledgments</h2>
+
+<p>Most of the preforking operating system tricks come from <a href="http://unicorn.bogomips.org/">Unicorn</a>. I checked out its source code and read <a href="http://tomayko.com/writings/unicorn-is-unix">this</a> great introduction by <a href="/rtomayko" class="user-mention">@rtomayko</a>.</p>
+
+<h2>To do list</h2>
+
+<ul>
+<li>More tests</li>
+<li>Log rotation through the USR1 signal</li>
+<li>Have something like min_spare_workers, max_workers, max_request_per_worker</li>
+</ul><h2>Note on Patches/Pull Requests</h2>
+
+<ul>
+<li>Fork the project.</li>
+<li>Make your feature addition or bug fix.</li>
+<li>Add tests for it. This is important so I don't break it in a
+future version unintentionally.</li>
+<li>Commit, do not mess with rakefile, version, or history.
+(if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)</li>
+<li>Send me a pull request. Bonus points for topic branches.</li>
+</ul><h2>Copyright</h2>
+
+<p>Copyright (c) 2012 Daniel Cadenas. See LICENSE for details.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Preforker maintained by <a href="https://github.com/dcadenas">dcadenas</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
