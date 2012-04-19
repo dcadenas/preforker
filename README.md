@@ -1,4 +1,7 @@
 [![Build Status](https://secure.travis-ci.org/dcadenas/preforker.png?branch=master)](http://travis-ci.org/dcadenas/preforker)
+
+[![endorse](http://api.coderwall.com/dcadenas/endorsecount.png)](http://coderwall.com/dcadenas)
+
 preforker
 =========
 A gem to easily create protocol agnostic prefork servers.
