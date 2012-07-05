@@ -1,5 +1,5 @@
 [![Build Status](https://secure.travis-ci.org/dcadenas/preforker.png?branch=master)](http://travis-ci.org/dcadenas/preforker)
-
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/dcadenas/preforker)
 [![endorse](http://api.coderwall.com/dcadenas/endorsecount.png)](http://coderwall.com/dcadenas)
 
 preforker
